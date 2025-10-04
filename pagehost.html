@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PageHost - 一键静态网页托管 | 支持GitHub集成</title>
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- Tailwind 配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36BFFA',
+            dark: '#1D2939',
+            light: '#F9FAFB',
+            success: '#00B42A',
+            warning: '#FF7D00',
+            danger: '#F53F3F',
+            github: '#24292e'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-balance {
+        text-wrap: balance;
+      }
+      .gradient-overlay {
+        background: linear-gradient(180deg, rgba(22, 93, 255, 0.05) 0%, rgba(22, 93, 255, 0) 100%);
+      }
+      .card-hover {
+        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+      }
+      .btn-primary {
+        @apply bg-primary text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50;
+      }
+      .btn-secondary {
+        @apply bg-white text-primary border border-primary px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-primary/50;
+      }
+      .btn-github {
+        @apply bg-github text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:bg-github/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-github/50 flex items-center justify-center;
+      }
+      .input-field {
+        @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter bg-gray-50 text-dark antialiased">
+  <!-- 导航栏 -->
+  <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-md shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16 md:h-20">
+        <!-- Logo -->
+        <a href="#" class="flex items-center space-x-2">
+          <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+            <i class="fa fa-globe text-white text-xl"></i>
+          </div>
+          <span class="text-xl font-bold text-dark">PageHost</span>
+        </a>
+        
+        <!-- 桌面导航 -->
+        <nav class="hidden md:flex items-center space-x-8">
+          <a href="#features" class="text-gray-600 hover:text-primary transition-colors duration-300">功能</a>
+          <a href="#github" class="text-gray-600 hover:text-primary transition-colors duration-300">GitHub集成</a>
+          <a href="#pricing" class="text-gray-600 hover:text-primary transition-colors duration-300">价格</a>
+          <a href="#examples" class="text-gray-600 hover:text-primary transition-colors duration-300">示例</a>
+          <a href="#docs" class="text-gray-600 hover:text-primary transition-colors duration-300">文档</a>
+        </nav>
+        
+        <!-- 登录/注册按钮 -->
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="#" class="text-gray-600 hover:text-primary transition-colors duration-300">登录</a>
+          <a href="#" class="btn-primary">免费注册</a>
+        </div>
+        
+        <!-- 移动端菜单按钮 -->
+        <button id="menu-toggle" class="md:hidden text-gray-600 focus:outline-none">
+          <i class="fa fa-bars text-2xl"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-t">
+      <div class="container mx-auto px-4 py-3 space-y-3">
+        <a href="#features" class="block py-2 text-gray-600 hover:text-primary transition-colors duration-300">功能</a>
+        <a href="#github" class="block py-2 text-gray-600 hover:text-primary transition-colors duration-300">GitHub集成</a>
+        <a href="#pricing" class="block py-2 text-gray-600 hover:text-primary transition-colors duration-300">价格</a>
+        <a href="#examples" class="block py-2 text-gray-600 hover:text-primary transition-colors duration-300">示例</a>
+        <a href="#docs" class="block py-2 text-gray-600 hover:text-primary transition-colors duration-300">文档</a>
+        <div class="flex space-x-4 pt-2">
+          <a href="#" class="flex-1 text-center py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-300">登录</a>
+          <a href="#" class="flex-1 text-center py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-300">注册</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容 -->
+  <main>
+    <!-- 英雄区域 -->
+    <section class="pt-32 pb-20 md:pt-40 md:pb-32 gradient-overlay">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto text-center">
+          <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold leading-tight mb-6">
+            一键发布你的 <span class="text-primary">静态网页</span>
+          </h1>
+          <p class="text-[clamp(1.1rem,2vw,1.25rem)] text-gray-600 mb-10 max-w-3xl mx-auto text-balance">
+            拖放文件或连接GitHub仓库，自动部署。全球CDN加速、HTTPS加密，简单高效。
+          </p>
+          <div class="flex flex-col sm:flex-row justify-center gap-4 mb-12">
+            <a href="#upload" class="btn-primary">
+              免费开始 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+            <a href="#github" class="btn-github">
+              <i class="fa fa-github mr-2"></i> 连接GitHub
+            </a>
+          </div>
+          
+          <!-- 上传区域预览 -->
+          <div id="upload" class="bg-white rounded-xl shadow-xl p-6 md:p-8 max-w-2xl mx-auto border border-gray-100">
+            <div class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-8 text-center transition-all duration-300 hover:border-primary/50 hover:bg-primary/5">
+              <i class="fa fa-cloud-upload text-5xl text-primary mb-4"></i>
+              <h3 class="text-lg font-medium mb-2">拖放你的文件到这里</h3>
+              <p class="text-gray-500 mb-6">或选择上传方式</p>
+              <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <label class="btn-primary cursor-pointer inline-block">
+                  选择文件
+                  <input type="file" class="hidden" multiple directory webkitdirectory />
+                </label>
+                <button id="github-upload-btn" class="btn-github">
+                  <i class="fa fa-github mr-2"></i> 从GitHub导入
+                </button>
+              </div>
+              <p class="text-xs text-gray-400 mt-4">支持 HTML, CSS, JavaScript, 图片等静态资源</p>
+            </div>
+            
+            <!-- GitHub 连接区域 (默认隐藏) -->
+            <div id="github-connect" class="hidden mt-6">
+              <div class="flex items-center p-4 border border-gray-200 rounded-lg mb-4">
+                <i class="fa fa-github text-2xl text-github mr-4"></i>
+                <div>
+                  <h4 class="font-medium">连接你的GitHub账户</h4>
+                  <p class="text-sm text-gray-500">授权后可直接从GitHub仓库部署网站</p>
+                </div>
+              </div>
+              <div class="flex gap-3">
+                <button id="authorize-github" class="flex-1 btn-github">
+                  <i class="fa fa-github mr-2"></i> 授权GitHub访问
+                </button>
+                <button id="cancel-github" class="px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fa fa-times"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- GitHub 仓库选择 (默认隐藏) -->
+            <div id="github-repos" class="hidden mt-6">
+              <h4 class="font-medium mb-4">选择要部署的仓库</h4>
+              <div class="space-y-3 mb-4">
+                <div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-colors cursor-pointer">
+                  <div class="font-medium">username/portfolio-site</div>
+                  <div class="text-sm text-gray-500">个人作品集网站</div>
+                </div>
+                <div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-colors cursor-pointer">
+                  <div class="font-medium">username/blog-project</div>
+                  <div class="text-sm text-gray-500">静态博客网站</div>
+                </div>
+                <div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-colors cursor-pointer">
+                  <div class="font-medium">username/product-landing</div>
+                  <div class="text-sm text-gray-500">产品落地页</div>
+                </div>
+              </div>
+              <div class="flex gap-3">
+                <button id="deploy-repo" class="flex-1 btn-primary">
+                  <i class="fa fa-rocket mr-2"></i> 部署选中仓库
+                </button>
+                <button id="back-github" class="px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  <i class="fa fa-arrow-left"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- 上传进度示例 (默认隐藏) -->
+            <div id="upload-progress" class="hidden mt-6">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium">正在部署网站...</span>
+                <span id="progress-percent" class="text-sm text-primary">0%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div id="progress-bar" class="bg-primary h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
+            
+            <!-- 上传完成示例 (默认隐藏) -->
+            <div id="upload-complete" class="hidden mt-6 p-4 bg-success/10 border border-success/20 rounded-lg">
+              <div class="flex items-start">
+                <i class="fa fa-check-circle text-success text-xl mt-1 mr-3"></i>
+                <div>
+                  <h4 class="font-medium text-success">网站部署成功！</h4>
+                  <p class="text-sm text-gray-600 mt-1">你的网站已发布至: <a href="#" class="text-primary hover:underline">https://your-site.pagehost.app</a></p>
+                  <div class="flex gap-3 mt-4">
+                    <a href="#" class="text-sm bg-white border border-gray-300 px-3 py-1 rounded hover:bg-gray-50 transition-colors">
+                      <i class="fa fa-link mr-1"></i> 访问网站
+                    </a>
+                    <a href="#" class="text-sm bg-primary/10 text-primary px-3 py-1 rounded hover:bg-primary/20 transition-colors">
+                      <i class="fa fa-cog mr-1"></i> 管理网站
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 信任标志 -->
+    <section class="py-12 bg-white">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <p class="text-center text-gray-500 mb-8">受到全球数千家公司的信任</p>
+        <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-70">
+          <div class="h-8"><i class="fa fa-google text-2xl"></i></div>
+          <div class="h-8"><i class="fa fa-spotify text-2xl"></i></div>
+          <div class="h-8"><i class="fa fa-slack text-2xl"></i></div>
+          <div class="h-8"><i class="fa fa-airbnb text-2xl"></i></div>
+          <div class="h-8"><i class="fa fa-pinterest text-2xl"></i></div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 功能特点 -->
+    <section id="features" class="py-20 bg-gray-50">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">简单而强大的功能</h2>
+          <p class="text-gray-600 text-lg">PageHost 提供你所需的一切工具，轻松托管和管理静态网站</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- 功能卡片 1 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+            <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
+              <i class="fa fa-bolt text-primary text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">全球CDN加速</h3>
+            <p class="text-gray-600">通过分布在全球的边缘节点，确保访问者获得最快的加载速度，降低延迟。</p>
+          </div>
+          
+          <!-- 功能卡片 2 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+            <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
+              <i class="fa fa-lock text-primary text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">自动HTTPS</h3>
+            <p class="text-gray-600">自动为所有网站配置SSL证书，确保数据传输安全，提升搜索引擎排名。</p>
+          </div>
+          
+          <!-- 功能卡片 3 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+            <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
+              <i class="fa fa-code-fork text-primary text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">版本控制</h3>
+            <p class="text-gray-600">保留网站的历史版本，随时可以回滚到之前的状态，安全可靠。</p>
+          </div>
+          
+          <!-- 功能卡片 4 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+            <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
+              <i class="fa fa-link text-primary text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">自定义域名</h3>
+            <p class="text-gray-600">轻松绑定你的自定义域名，支持域名解析和DNS配置，打造专业形象。</p>
+          </div>
+          
+          <!-- 功能卡片 5 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+            <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
+              <i class="fa fa-line-chart text-primary text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">访问统计</h3>
+            <p class="text-gray-600">详细的访问数据分析，了解访客来源、行为和设备，优化你的网站。</p>
+          </div>
+          
+          <!-- 功能卡片 6 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm card-hover border-l-4 border-github">
+            <div class="w-12 h-12 rounded-lg bg-github/10 flex items-center justify-center mb-5">
+              <i class="fa fa-github text-github text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">GitHub集成</h3>
+            <p class="text-gray-600">连接你的GitHub仓库，实现自动部署，每次推送代码自动更新网站。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- GitHub 集成专区 -->
+    <section id="github" class="py-20 bg-white">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <div class="inline-block p-3 rounded-full bg-github/10 mb-4">
+            <i class="fa fa-github text-3xl text-github"></i>
+          </div>
+          <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">无缝集成 GitHub</h2>
+          <p class="text-gray-600 text-lg">将你的代码仓库与PageHost连接，实现自动化部署流程</p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+          <div>
+            <div class="relative">
+              <img src="https://picsum.photos/id/0/600/400" alt="GitHub集成演示" class="rounded-xl shadow-lg w-full">
+              <div class="absolute -bottom-6 -right-6 bg-github text-white p-4 rounded-lg shadow-lg hidden md:block">
+                <div class="text-sm font-mono">
+                  <span class="text-green-400">✓</span> 自动部署完成
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="space-y-6">
+              <div class="flex">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-github/10 flex items-center justify-center mr-4">
+                  <i class="fa fa-code text-github"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">自动部署</h3>
+                  <p class="text-gray-600">每次推送到GitHub仓库的指定分支，PageHost会自动构建并部署你的网站。</p>
+                </div>
+              </div>
+              
+              <div class="flex">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-github/10 flex items-center justify-center mr-4">
+                  <i class="fa fa-code-fork text-github"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">分支预览</h3>
+                  <p class="text-gray-600">为每个分支创建独立的预览环境，方便团队协作和功能测试，避免直接影响生产环境。</p>
+                </div>
+              </div>
+              
+              <div class="flex">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-github/10 flex items-center justify-center mr-4">
+                  <i class="fa fa-history text-github"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">版本回滚</h3>
+                  <p class="text-gray-600">自动保留每次部署的历史版本，一键回滚到任意历史版本，快速修复问题。</p>
+                </div>
+              </div>
+              
+              <div class="flex">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-github/10 flex items-center justify-center mr-4">
+                  <i class="fa fa-pull-request text-github"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">PR检查</h3>
+                  <p class="text-gray-600">自动为拉取请求创建预览链接，在合并前即可查看效果，提高代码质量。</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-8">
+              <a href="#upload" class="btn-github inline-flex">
+                <i class="fa fa-github mr-2"></i> 立即连接GitHub
+              </a>
+              <a href="#" class="ml-4 text-primary hover:underline inline-flex items-center">
+                查看详细教程 <i class="fa fa-arrow-right ml-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 工作流程 -->
+    <section class="py-20 bg-gray-50">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">简单三步，发布你的网站</h2>
+          <p class="text-gray-600 text-lg">无需技术背景，任何人都能在几分钟内部署静态网站</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <!-- 连接线 (仅在中等屏幕以上显示) -->
+          <div class="hidden md:block absolute top-1/4 left-0 right-0 h-1 bg-gray-200 -z-10"></div>
+          
+          <!-- 步骤 1 -->
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold mx-auto mb-6 relative z-10">1</div>
+            <h3 class="text-xl font-semibold mb-3">上传文件或连接GitHub</h3>
+            <p class="text-gray-600">拖放文件或连接你的Git仓库，选择要部署的项目。</p>
+          </div>
+          
+          <!-- 步骤 2 -->
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold mx-auto mb-6 relative z-10">2</div>
+            <h3 class="text-xl font-semibold mb-3">配置选项</h3>
+            <p class="text-gray-600">选择自定义域名（可选），设置缓存策略和其他高级选项。</p>
+          </div>
+          
+          <!-- 步骤 3 -->
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold mx-auto mb-6 relative z-10">3</div>
+            <h3 class="text-xl font-semibold mb-3">发布上线</h3>
+            <p class="text-gray-600">一键发布你的网站，全球用户可以立即访问，享受CDN加速。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 价格方案 -->
+    <section id="pricing" class="py-20 bg-white">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">灵活的价格方案</h2>
+          <p class="text-gray-600 text-lg">无论你是个人开发者还是大型企业，都能找到适合的方案</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <!-- 免费方案 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">免费版</h3>
+              <p class="text-gray-600 mb-6">适合个人项目和测试使用</p>
+              <div class="mb-6">
+                <span class="text-4xl font-bold">¥0</span>
+                <span class="text-gray-500">/永久</span>
+              </div>
+              <a href="#" class="block w-full text-center btn-secondary">
+                开始使用
+              </a>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+              <ul class="space-y-3">
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>最多3个网站</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>每个网站1GB存储空间</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>基础CDN加速</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>PageHost二级域名</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>基础GitHub集成</span>
+                </li>
+                <li class="flex items-start text-gray-400">
+                  <i class="fa fa-times mt-1 mr-3"></i>
+                  <span>分支预览</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- 专业版 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-lg border-2 border-primary transform md:-translate-y-4 card-hover relative">
+            <div class="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+              最受欢迎
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">专业版</h3>
+              <p class="text-gray-600 mb-6">适合专业开发者和小型团队</p>
+              <div class="mb-6">
+                <span class="text-4xl font-bold">¥19</span>
+                <span class="text-gray-500">/月</span>
+              </div>
+              <a href="#" class="block w-full text-center btn-primary">
+                开始使用
+              </a>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+              <ul class="space-y-3">
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>无限网站数量</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>总存储空间50GB</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>高级CDN加速</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>无限自定义域名</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>完整GitHub集成</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>分支预览和PR检查</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- 企业版 -->
+          <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover">
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">企业版</h3>
+              <p class="text-gray-600 mb-6">适合大型企业和高流量网站</p>
+              <div class="mb-6">
+                <span class="text-4xl font-bold">¥99</span>
+                <span class="text-gray-500">/月</span>
+              </div>
+              <a href="#" class="block w-full text-center btn-secondary">
+                联系销售
+              </a>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+              <ul class="space-y-3">
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>无限网站数量</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>总存储空间500GB</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>企业级CDN加速</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>无限自定义域名</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>企业级GitHub集成</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fa fa-check text-success mt-1 mr-3"></i>
+                  <span>团队协作与权限管理</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 示例网站 -->
+    <section id="examples" class="py-20 bg-gray-50">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">客户案例</h2>
+          <p class="text-gray-600 text-lg">看看其他人用PageHost和GitHub集成托管的精彩网站</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- 示例 1 -->
+          <div class="rounded-xl overflow-hidden shadow-sm card-hover">
+            <div class="aspect-video bg-gray-100 overflow-hidden">
+              <img src="https://picsum.photos/id/0/600/400" alt="示例网站截图" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">创意工作室官网</h3>
+              <p class="text-gray-600 mb-4">通过GitHub Actions自动部署的创意设计工作室展示网站</p>
+              <div class="flex justify-between items-center">
+                <a href="#" class="text-primary font-medium hover:underline flex items-center">
+                  查看网站 <i class="fa fa-external-link ml-2 text-sm"></i>
+                </a>
+                <a href="#" class="text-github hover:text-github/80 flex items-center text-sm">
+                  <i class="fa fa-github mr-1"></i> 查看源码
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 示例 2 -->
+          <div class="rounded-xl overflow-hidden shadow-sm card-hover">
+            <div class="aspect-video bg-gray-100 overflow-hidden">
+              <img src="https://picsum.photos/id/180/600/400" alt="示例网站截图" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">个人博客</h3>
+              <p class="text-gray-600 mb-4">使用Jekyll构建并通过GitHub集成自动部署的技术博客</p>
+              <div class="flex justify-between items-center">
+                <a href="#" class="text-primary font-medium hover:underline flex items-center">
+                  查看网站 <i class="fa fa-external-link ml-2 text-sm"></i>
+                </a>
+                <a href="#" class="text-github hover:text-github/80 flex items-center text-sm">
+                  <i class="fa fa-github mr-1"></i> 查看源码
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 示例 3 -->
+          <div class="rounded-xl overflow-hidden shadow-sm card-hover">
+            <div class="aspect-video bg-gray-100 overflow-hidden">
+              <img src="https://picsum.photos/id/42/600/400" alt="示例网站截图" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">产品展示页</h3>
+              <p class="text-gray-600 mb-4">通过GitHub PR预览功能优化的产品营销落地页</p>
+              <div class="flex justify-between items-center">
+                <a href="#" class="text-primary font-medium hover:underline flex items-center">
+                  查看网站 <i class="fa fa-external-link ml-2 text-sm"></i>
+                </a>
+                <a href="#" class="text-github hover:text-github/80 flex items-center text-sm">
+                  <i class="fa fa-github mr-1"></i> 查看源码
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 文档和支持 -->
+    <section id="docs" class="py-20 bg-white">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-4">丰富的文档和支持</h2>
+          <p class="text-gray-600 text-lg">从入门指南到高级技巧，助你充分利用PageHost的全部功能</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <!-- 文档 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
+              <i class="fa fa-book text-primary text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">详细文档</h3>
+            <p class="text-gray-600 mb-5">从基础设置到高级配置，全面的指南帮助你快速上手。</p>
+            <ul class="space-y-3 mb-6">
+              <li class="flex items-center">
+                <i class="fa fa-angle-right text-primary mr-2"></i>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">GitHub集成指南</a>
+              </li>
+              <li class="flex items-center">
+                <i class="fa fa-angle-right text-primary mr-2"></i>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">自动部署配置</a>
+              </li>
+              <li class="flex items-center">
+                <i class="fa fa-angle-right text-primary mr-2"></i>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">分支预览设置</a>
+              </li>
+              <li class="flex items-center">
+                <i class="fa fa-angle-right text-primary mr-2"></i>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">API参考</a>
+              </li>
+            </ul>
+            <a href="#" class="text-primary font-medium hover:underline flex items-center">
+              浏览全部文档 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+          
+          <!-- 支持 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-5">
+              <i class="fa fa-comments text-primary text-xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">专业支持</h3>
+            <p class="text-gray-600 mb-5">我们的团队随时准备帮助你解决问题，解答疑问。</p>
+            <ul class="space-y-3 mb-6">
+              <li class="flex items-center">
+                <i class="fa fa-angle-right text-primary mr-2"></i>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">提交支持工单</a>
+              </li>
+              <li class="flex items-center">
+                <i class="fa fa-angle-right text-primary mr-2"></i>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">GitHub集成问题</a>
+              </li>
+              <li class="flex items-center">
+                <i class="fa fa-angle-right text-primary mr-2"></i>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">常见问题</a>
+              </li>
+              <li class="flex items-center">
+                <i class="fa fa-angle-right text-primary mr-2"></i>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">联系我们</a>
+              </li>
+            </ul>
+            <a href="#" class="text-primary font-medium hover:underline flex items-center">
+              获取帮助 <i class="fa fa-arrow-right ml-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 行动召唤 -->
+    <section class="py-20 bg-primary">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-[clamp(1.8rem,3vw,2.5rem)] font-bold mb-6 text-white">准备好连接GitHub发布你的网站了吗？</h2>
+        <p class="text-white/80 text-lg max-w-2xl mx-auto mb-10">只需几分钟，即可实现代码推送自动部署，提升开发效率</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <a href="#upload" class="btn-github">
+            <i class="fa fa-github mr-2"></i> 立即连接GitHub
+          </a>
+          <a href="#" class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-medium transition-all duration-300 hover:bg-white/10">
+            查看演示 <i class="fa fa-play-circle ml-2"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-dark text-white pt-16 pb-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+        <!-- 品牌 -->
+        <div class="lg:col-span-2">
+          <div class="flex items-center space-x-2 mb-6">
+            <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+              <i class="fa fa-globe text-primary text-xl"></i>
+            </div>
+            <span class="text-xl font-bold">PageHost</span>
+          </div>
+          <p class="text-gray-400 mb-6 max-w-md">
+            简单、快速、可靠的静态网页托管平台，与GitHub无缝集成，让开发部署更高效。
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors duration-300">
+              <i class="fa fa-twitter"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-github transition-colors duration-300">
+              <i class="fa fa-github"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors duration-300">
+              <i class="fa fa-linkedin"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary transition-colors duration-300">
+              <i class="fa fa-discord"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 产品 -->
+        <div>
+          <h4 class="text-lg font-semibold mb-4">产品</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">功能</a></li>
+            <li><a href="#github" class="text-gray-400 hover:text-white transition-colors">GitHub集成</a></li>
+            <li><a href="#pricing" class="text-gray-400 hover:text-white transition-colors">价格</a></li>
+            <li><a href="#examples" class="text-gray-400 hover:text-white transition-colors">案例</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">更新日志</a></li>
+          </ul>
+        </div>
+        
+        <!-- 资源 -->
+        <div>
+          <h4 class="text-lg font-semibold mb-4">资源</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">文档</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">GitHub集成教程</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">博客</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">API</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">状态</a></li>
+          </ul>
+        </div>
+        
+        <!-- 公司 -->
+        <div>
+          <h4 class="text-lg font-semibold mb-4">公司</h4>
+          <ul class="space-y-3">
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">关于我们</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">隐私政策</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">服务条款</a></li>
+            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">招聘</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-500 text-sm mb-4 md:mb-0">© 2023 PageHost. 保留所有权利。</p>
+        <div class="flex space-x-6">
+          <a href="#" class="text-gray-500 hover:text-gray-300 text-sm transition-colors">隐私政策</a>
+          <a href="#" class="text-gray-500 hover:text-gray-300 text-sm transition-colors">服务条款</a>
+          <a href="#" class="text-gray-500 hover:text-gray-300 text-sm transition-colors">Cookie设置</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('shadow-md');
+        navbar.classList.remove('shadow-sm');
+      } else {
+        navbar.classList.remove('shadow-md');
+        navbar.classList.add('shadow-sm');
+      }
+    });
+    
+    // 移动端菜单切换
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // 平滑滚动
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+          
+          // 关闭移动菜单
+          document.getElementById('mobile-menu').classList.add('hidden');
+        }
+      });
+    });
+    
+    // GitHub 集成相关交互
+    const uploadArea = document.querySelector('.upload-area');
+    const githubUploadBtn = document.getElementById('github-upload-btn');
+    const githubConnect = document.getElementById('github-connect');
+    const githubRepos = document.getElementById('github-repos');
+    const cancelGithub = document.getElementById('cancel-github');
+    const backGithub = document.getElementById('back-github');
+    const authorizeGithub = document.getElementById('authorize-github');
+    const deployRepo = document.getElementById('deploy-repo');
+    const fileInput = document.querySelector('input[type="file"]');
+    const uploadProgress = document.getElementById('upload-progress');
+    const uploadComplete = document.getElementById('upload-complete');
+    const progressBar = document.getElementById('progress-bar');
+    const progressPercent = document.getElementById('progress-percent');
+    
+    // 点击GitHub上传按钮
+    githubUploadBtn.addEventListener('click', function() {
+      uploadArea.classList.add('hidden');
+      githubConnect.classList.remove('hidden');
+    });
+    
+    // 取消GitHub连接
+    cancelGithub.addEventListener('click', function() {
+      githubConnect.classList.add('hidden');
+      uploadArea.classList.remove('hidden');
+    });
+    
+    // 返回上一步
+    backGithub.addEventListener('click', function() {
+      githubRepos.classList.add('hidden');
+      githubConnect.classList.remove('hidden');
+    });
+    
+    // 授权GitHub访问
+    authorizeGithub.addEventListener('click', function() {
+      githubConnect.classList.add('hidden');
+      githubRepos.classList.remove('hidden');
+    });
+    
+    // 部署选中的仓库
+    deployRepo.addEventListener('click', function() {
+      githubRepos.classList.add('hidden');
+      uploadProgress.classList.remove('hidden');
+      simulateUpload();
+    });
+    
+    // 点击上传区域触发文件选择
+    uploadArea.addEventListener('click', function(e) {
+      if (!e.target.closest('label') && !e.target.closest('#github-upload-btn')) {
+        fileInput.click();
+      }
+    });
+    
+    // 拖放功能
+    uploadArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      uploadArea.classList.add('border-primary');
+      uploadArea.classList.add('bg-primary/10');
+    });
+    
+    uploadArea.addEventListener('dragleave', function() {
+      uploadArea.classList.remove('border-primary');
+      uploadArea.classList.remove('bg-primary/10');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      uploadArea.classList.remove('border-primary');
+      uploadArea.classList.remove('bg-primary/10');
+      
+      if (e.dataTransfer.files.length) {
+        simulateUpload();
+      }
+    });
+    
+    // 文件选择后模拟上传
+    fileInput.addEventListener('change', simulateUpload);
+    
+    // 模拟上传过程
+    function simulateUpload() {
+      // 显示进度条
+      uploadArea.classList.add('hidden');
+      uploadProgress.classList.remove('hidden');
+      uploadComplete.classList.add('hidden');
+      
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 10;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          
+          // 上传完成后显示结果
+          setTimeout(() => {
+            uploadProgress.classList.add('hidden');
+            uploadComplete.classList.remove('hidden');
+          }, 500);
+        }
+        
+        progressBar.style.width = `${progress}%`;
+        progressPercent.textContent = `${Math.round(progress)}%`;
+      }, 300);
+    }
+  </script>
+</body>
+</html>
